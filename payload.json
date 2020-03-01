@@ -1,0 +1,13 @@
+{
+  "name": "name of book",
+  "publicationDate": "1998-10-12",
+  "numOfPages": null,
+  "authors": [
+    {
+      "name": "Alex"
+    },
+    {
+      "name": "Vassilis"
+    }
+  ]
+}
