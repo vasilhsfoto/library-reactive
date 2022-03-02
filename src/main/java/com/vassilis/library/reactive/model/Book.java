@@ -1,17 +1,19 @@
 package com.vassilis.library.reactive.model;
 
-import com.couchbase.client.java.repository.annotation.Field;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.couchbase.core.mapping.Document;
-import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
-import org.springframework.data.couchbase.core.mapping.id.GenerationStrategy;
+import java.time.LocalDate;
+import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.couchbase.core.mapping.Document;
+import org.springframework.data.couchbase.core.mapping.Field;
+import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
+import org.springframework.data.couchbase.core.mapping.id.GenerationStrategy;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Document
 @Data
@@ -29,7 +31,8 @@ public class Book {
         private LocalDate birthDate;
     }
 
-    @Id @GeneratedValue(strategy = GenerationStrategy.UNIQUE)
+    @Id
+    @GeneratedValue(strategy = GenerationStrategy.UNIQUE)
     private String id;
 
     @Field("_meta")

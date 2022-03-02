@@ -1,7 +1,8 @@
 package com.vassilis.library.reactive.configuration;
 
-import com.vassilis.library.reactive.configuration.property.CouchbaseProperties;
-import lombok.Data;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.CustomConversions;
@@ -12,8 +13,8 @@ import org.springframework.data.couchbase.core.convert.CouchbaseCustomConversion
 import org.springframework.data.couchbase.repository.auditing.EnableCouchbaseAuditing;
 import org.springframework.data.couchbase.repository.config.EnableReactiveCouchbaseRepositories;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.vassilis.library.reactive.configuration.property.CouchbaseProperties;
+import lombok.Data;
 
 @Configuration
 @EnableCouchbaseAuditing
@@ -29,25 +30,24 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
     }
 
     @Override
-    protected List<String> getBootstrapHosts() {
-        return couchbaseProperties.getHosts();
+    public String getConnectionString() {
+        return couchbaseProperties.getHost();
     }
 
     @Override
-    protected String getBucketName() {
-        return couchbaseProperties.getBucketName();
-    }
-
-    @Override
-    protected String getUsername() {
+    public String getUserName() {
         return couchbaseProperties.getUsername();
     }
 
     @Override
-    protected String getBucketPassword() {
+    public String getPassword() {
         return couchbaseProperties.getPassword();
     }
 
+    @Override
+    public String getBucketName() {
+        return couchbaseProperties.getBucketName();
+    }
 
     @WritingConverter
     public enum LocalDateToString implements Converter<LocalDate, String> {
