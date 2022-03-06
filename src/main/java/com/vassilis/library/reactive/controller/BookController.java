@@ -1,13 +1,9 @@
 package com.vassilis.library.reactive.controller;
 
-import com.vassilis.library.reactive.exception.WebAppException;
-import com.vassilis.library.reactive.model.Book;
-import com.vassilis.library.reactive.repository.BookRepository;
-import com.vassilis.library.reactive.representation.BookDTO;
-import com.vassilis.library.reactive.representation.BooksDTO;
-import com.vassilis.library.reactive.service.BookMapping;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Objects;
+
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
-import java.util.Objects;
+import com.vassilis.library.reactive.exception.WebAppException;
+import com.vassilis.library.reactive.model.Book;
+import com.vassilis.library.reactive.repository.BookRepository;
+import com.vassilis.library.reactive.representation.BookDTO;
+import com.vassilis.library.reactive.representation.BooksDTO;
+import com.vassilis.library.reactive.service.BookMapping;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 @RestController
 @RequestMapping("/api/libraries/{libraryId}/books")
@@ -33,6 +36,7 @@ public class BookController {
 
     private final BookRepository bookRepository;
     private final BookMapping bookMapping;
+    private final Scheduler blockingHttpScheduler;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -63,7 +67,8 @@ public class BookController {
         return bookRepository.findById(bookId)
                 .map(bookMapping::toBookDTO)
                 .map(ResponseEntity::ok)
-                .switchIfEmpty(Mono.error(new WebAppException(String.format("Book with id %s not found", bookId), HttpStatus.NOT_FOUND)));
+                .switchIfEmpty(Mono.error(new WebAppException(String.format("Book with id %s not found", bookId),
+                        HttpStatus.NOT_FOUND)));
     }
 
     @PutMapping("/{bookId}")
@@ -73,18 +78,21 @@ public class BookController {
         Mono<BookDTO> bookIdMonoValidation = bookDTOMono.flatMap(bookDTO -> {
             String id = bookDTO.getId();
             if (!Objects.equals(id, bookId)) {
-                return Mono.error(new WebAppException("Book id should be the same with the one in the path", HttpStatus.UNPROCESSABLE_ENTITY));
+                return Mono.error(new WebAppException("Book id should be the same with the one in the path",
+                        HttpStatus.UNPROCESSABLE_ENTITY));
             }
             return Mono.just(bookDTO);
         });
 
         Mono<Book> existingBookMono = bookRepository.findById(bookId);
 
-        return existingBookMono.zipWith(bookIdMonoValidation, (existingBook, bookDTO) -> bookMapping.updateBook(bookDTO, existingBook))
+        return existingBookMono.zipWith(bookIdMonoValidation,
+                        (existingBook, bookDTO) -> bookMapping.updateBook(bookDTO, existingBook))
                 .flatMap(bookRepository::save)
                 .map(bookMapping::toBookDTO)
                 .map(ResponseEntity::ok)
-                .switchIfEmpty(Mono.error(new WebAppException(String.format("Book with id %s not found", bookId), HttpStatus.NOT_FOUND)));
+                .switchIfEmpty(Mono.error(new WebAppException(String.format("Book with id %s not found", bookId),
+                        HttpStatus.NOT_FOUND)));
     }
 
     @DeleteMapping("/{bookId}")
@@ -92,7 +100,8 @@ public class BookController {
         return bookRepository.existsById(bookId)
                 .flatMap(exists -> {
                     if (!exists) {
-                        return Mono.error(new WebAppException(String.format("Book with id %s not found", bookId), HttpStatus.NOT_FOUND));
+                        return Mono.error(new WebAppException(String.format("Book with id %s not found", bookId),
+                                HttpStatus.NOT_FOUND));
                     }
 
                     return bookRepository

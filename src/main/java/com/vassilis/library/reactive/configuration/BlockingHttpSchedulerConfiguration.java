@@ -13,21 +13,20 @@ import reactor.core.scheduler.Schedulers;
 public class BlockingHttpSchedulerConfiguration {
 
     /**
-     * To be used for overcoming the blocking of a thread
+     * Scheduler with threads that can be blocked. This can be used as a work-around to overcome executing paths that
+     * are blocked.
+     *
      * @param blockingHttpSchedulerProps
      * @return
      */
     @Bean
     public Scheduler blockingHttpScheduler(BlockingHttpSchedulerProperties blockingHttpSchedulerProps) {
-
-        return Schedulers.newParallel(
-                blockingHttpSchedulerProps.getThreadName(),
-                blockingHttpSchedulerProps.getNumOfThreads(),
-                true);
+        return Schedulers.newParallel(blockingHttpSchedulerProps.getNumOfThreads(), runnable -> new Thread(runnable,
+                blockingHttpSchedulerProps.getThreadName()));
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "proxy.blocking-http-scheduler")
+    @ConfigurationProperties(prefix = "blocking-http-scheduler")
     public BlockingHttpSchedulerProperties blockingHttpSchedulerProperties() {
         return new BlockingHttpSchedulerProperties();
     }

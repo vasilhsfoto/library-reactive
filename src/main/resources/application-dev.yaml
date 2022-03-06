@@ -1,0 +1,12 @@
+#logging.level.org.springframework.*=DEBUG
+couchbase:
+  host: 127.0.0.1
+  username: admin
+  password: password
+
+blocking-http-scheduler:
+  threadName: blocking-scheduler-thread
+  numOfThreads: 4
+
+coin-cap-client:
+  url: https://api.coincap.io
