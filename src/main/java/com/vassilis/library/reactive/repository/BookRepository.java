@@ -9,5 +9,5 @@ import reactor.core.publisher.Flux;
 public interface BookRepository extends ReactiveCouchbaseRepository<Book, String> {
 
     @Query("#{#n1ql.selectEntity} WHERE _meta.type = 'BOOK'")
-    public Flux<Book> getBooks();
+    Flux<Book> getBooks();
 }

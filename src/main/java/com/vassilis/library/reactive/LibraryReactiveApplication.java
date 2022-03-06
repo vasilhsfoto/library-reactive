@@ -19,8 +19,6 @@ public class LibraryReactiveApplication {
     @Bean
     @Order(1)
     CommandLineRunner init() {
-        return args -> {
-            log.info("1st call back after spring container is up...");
-        };
+        return args -> log.info("1st call back after spring container is up...");
     }
 }
